@@ -47,13 +47,14 @@ function App() {
   };
 
   const sendMessage = () => {
-    if (message.trim() === "") return;
+  if (message.trim() === "") return;
 
-    const msgData = `${username}: ${message}`;
+  const msgData = `${username}: ${message}`;
 
-    socket.emit("send_message", msgData);
-    setMessage("");
-  };
+  socket.emit("send_message", msgData);
+
+  setMessage("");
+};
 
   const clearChat = () => {
     setMessages([]);
