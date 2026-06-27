@@ -1,8 +1,17 @@
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
+const http = require("http");
+const { Server } = require("socket.io");
 
 const app = express();
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
 app.use(cors());
 
@@ -34,6 +43,19 @@ app.post("/upload", upload.single("file"), (req, res) => {
   });
 });
 
+// Socket.IO
+io.on("connection", (socket) => {
+  console.log("User Connected");
+
+  socket.on("send_message", (data) => {
+    io.emit("receive_message", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User Disconnected");
+  });
+});
+
 // Home route
 app.get("/", (req, res) => {
   res.send("Backend is running");
@@ -42,6 +64,6 @@ app.get("/", (req, res) => {
 // Render uses this port
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

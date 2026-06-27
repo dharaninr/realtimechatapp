@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import io from "socket.io-client";
 
-const socket = io("http://localhost:5000");
+const socket = io("https://realtimechatapp-3-752i.onrender.com");
 
 function App() {
   const [username, setUsername] = useState("");
@@ -70,7 +70,7 @@ function App() {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/upload",
+        "https://realtimechatapp-3-752i.onrender.com/upload",
         formData
       );
 
@@ -86,7 +86,6 @@ function App() {
     }
   };
 
-  // LOGIN PAGE
   if (!loggedIn) {
     return (
       <div
@@ -144,7 +143,6 @@ function App() {
     );
   }
 
-  // MAIN APP
   return (
     <div
       style={{
@@ -169,20 +167,20 @@ function App() {
         >
           {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
         </button>
-        
+
         <button
-  onClick={() => {
-    setLoggedIn(false);
-    setMessages([]);
-    setUploadedFiles([]);
-    setUsername("");
-    setPassword("");
-    setMessage("");
-  }}
-  style={styles.logout}
->
-  Logout
-</button>
+          onClick={() => {
+            setLoggedIn(false);
+            setMessages([]);
+            setUploadedFiles([]);
+            setUsername("");
+            setPassword("");
+            setMessage("");
+          }}
+          style={styles.logout}
+        >
+          Logout
+        </button>
 
         <button
           onClick={clearChat}
