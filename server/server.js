@@ -26,12 +26,22 @@ const upload = multer({ storage });
 app.post("/upload", upload.single("file"), (req, res) => {
   res.json({
     filePath:
-      "http://localhost:5000/uploads/" +
+      req.protocol +
+      "://" +
+      req.get("host") +
+      "/uploads/" +
       req.file.filename,
   });
 });
 
-// Start server
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
+// Home route
+app.get("/", (req, res) => {
+  res.send("Backend is running");
+});
+
+// Render uses this port
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
