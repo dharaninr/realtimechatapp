@@ -20,6 +20,8 @@ function App() {
   const [showEmoji, setShowEmoji] = useState(false);
   const [room, setRoom] = useState("");
   const [joinedRoom, setJoinedRoom] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
   const avatars = [
   "🐱", "🐶", "🐼", "🐰",
   "🦊", "🐻", "🐨", "🐯",
@@ -87,6 +89,48 @@ const [selectedAvatar, setSelectedAvatar] = useState("🐱");
 };
 const onEmojiClick = (emojiData) => {
   setMessage((prev) => prev + emojiData.emoji);
+};
+const startRecording = async () => {
+  const stream =
+    await navigator.mediaDevices.getUserMedia({
+      audio: true,
+    });
+
+  const recorder = new MediaRecorder(stream);
+  const audioChunks = [];
+
+  recorder.ondataavailable = (event) => {
+    audioChunks.push(event.data);
+  };
+
+  recorder.onstop = () => {
+    const audioBlob = new Blob(audioChunks, {
+      type: "audio/webm",
+    });
+
+    const audioUrl =
+      URL.createObjectURL(audioBlob);
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        type: "audio",
+        url: audioUrl,
+      },
+    ]);
+  };
+
+  recorder.start();
+
+  setMediaRecorder(recorder);
+  setIsRecording(true);
+};
+
+const stopRecording = () => {
+  if (mediaRecorder) {
+    mediaRecorder.stop();
+    setIsRecording(false);
+  }
 };
 
   const clearChat = () => {
@@ -302,7 +346,15 @@ const onEmojiClick = (emojiData) => {
       background: darkMode ? "#666" : "#e9d8fd",
     }}
   >
-    {typeof msg === "object" ? msg.message : msg}
+    {typeof msg === "object" ? (
+  msg.type === "audio" ? (
+    <audio controls src={msg.url}></audio>
+  ) : (
+    msg.message
+  )
+) : (
+  msg
+)}
   </div>
 ))}
 </div>
@@ -327,6 +379,21 @@ const onEmojiClick = (emojiData) => {
         <button onClick={sendMessage} style={styles.button}>
           Send
         </button>
+        {!isRecording ? (
+  <button
+    onClick={startRecording}
+    style={styles.button}
+  >
+    🎤 Start Recording
+  </button>
+) : (
+  <button
+    onClick={stopRecording}
+    style={styles.button}
+  >
+    ⏹ Stop Recording
+  </button>
+)}
 
         <hr />
 
