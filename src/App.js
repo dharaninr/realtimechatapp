@@ -20,6 +20,13 @@ function App() {
   const [showEmoji, setShowEmoji] = useState(false);
   const [room, setRoom] = useState("");
   const [joinedRoom, setJoinedRoom] = useState(false);
+  const avatars = [
+  "🐱", "🐶", "🐼", "🐰",
+  "🦊", "🐻", "🐨", "🐯",
+  "🐸", "🦄", "🐧", "🐥"
+];
+
+const [selectedAvatar, setSelectedAvatar] = useState("🐱");
 
   useEffect(() => {
   socket.on("receive_message", (data) => {
@@ -67,7 +74,8 @@ function App() {
   const sendMessage = () => {
   if (message.trim() === "") return;
 
-  const msgData = `${username}: ${message}`;
+  const msgData =
+`${selectedAvatar} ${username}: ${message}`;
 
   socket.emit("send_message", {
     room: room,
@@ -157,6 +165,36 @@ const onEmojiClick = (emojiData) => {
             onChange={(e) => setPassword(e.target.value)}
             style={styles.input}
           />
+          <h3>Select Avatar</h3>
+
+<div
+  style={{
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "10px",
+    justifyContent: "center",
+    marginBottom: "20px"
+  }}
+>
+  {avatars.map((avatar, index) => (
+    <button
+      key={index}
+      onClick={() => setSelectedAvatar(avatar)}
+      style={{
+        fontSize: "30px",
+        padding: "10px",
+        borderRadius: "50%",
+        border:
+          selectedAvatar === avatar
+            ? "3px solid purple"
+            : "1px solid gray",
+        cursor: "pointer"
+      }}
+    >
+      {avatar}
+    </button>
+  ))}
+</div>
 
           <button onClick={login} style={styles.button}>
             Login
@@ -182,7 +220,13 @@ const onEmojiClick = (emojiData) => {
           color: darkMode ? "white" : "black",
         }}
       >
-        <h2>💬 Welcome {username}</h2>
+        <div style={{ textAlign: "center" }}>
+  <div style={{ fontSize: "60px" }}>
+    {selectedAvatar}
+  </div>
+
+  <h2>💬 Welcome {username}</h2>
+</div>
         <input
   type="text"
   placeholder="Enter Room ID"
