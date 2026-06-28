@@ -58,19 +58,14 @@ useEffect(() => {
 });
 
   socket.on("receive_file", (data) => {
-
   console.log("Received file:", data);
 
   if (data.room === room) {
-
     setUploadedFiles((prev) => [
       ...prev,
       data.file,
     ]);
-
   }
-
-
 });
 
   return () => {
