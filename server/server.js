@@ -59,17 +59,17 @@ socket.on("join_room", (data) => {
 socket.on("send_message", (data) => {
   console.log("Message received:", data);
 
-  // Private Chat
-  if (data.room && data.room.trim() !== "") {
+  // If user joined a room → send only to that room
+  if (data.room && data.room !== "") {
     io.to(data.room).emit(
       "receive_message",
       data.message
     );
   }
 
-  // Public Chat
+  // If no room joined → send to everyone
   else {
-    socket.broadcast.emit(
+    io.emit(
       "receive_message",
       data.message
     );
@@ -95,12 +95,13 @@ socket.on("send_message", (data) => {
   }
 });
 socket.on("leave_room", (data) => {
-  socket.leave(data.room);
 
   io.to(data.room).emit(
     "receive_message",
     `${data.username} left the room`
   );
+
+  socket.leave(data.room);
 
   console.log(`${data.username} left ${data.room}`);
 });
