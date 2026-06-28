@@ -160,7 +160,10 @@ const stopRecording = () => {
         formData
       );
 
-      socket.emit("send_file", res.data.filePath);
+      socket.emit("send_file", {
+        room: room,
+        file: res.data.filePath,
+    });
 
       alert("PDF Uploaded Successfully");
     } catch (error) {

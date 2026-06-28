@@ -75,9 +75,24 @@ socket.on("send_message", (data) => {
     );
   }
 });
-  socket.on("send_file", (file) => {
-  console.log("File shared:", file);
-  io.emit("receive_file", file);
+  socket.on("send_file", (data) => {
+  console.log("File shared:", data);
+
+  // Private room
+  if (data.room && data.room.trim() !== "") {
+    io.to(data.room).emit(
+      "receive_file",
+      data.file
+    );
+  }
+
+  // Public chat
+  else {
+    io.emit(
+      "receive_file",
+      data.file
+    );
+  }
 });
 socket.on("leave_room", (data) => {
   socket.leave(data.room);
