@@ -181,6 +181,7 @@ const stopRecording = () => {
         "https://realtimechatapp-3-752i.onrender.com/upload",
         formData
       );
+      console.log("Sending file to room:", room);
 
       socket.emit("send_file", {
         room: room,
