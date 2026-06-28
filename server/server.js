@@ -59,7 +59,7 @@ socket.on("join_room", (data) => {
 socket.on("send_message", (data) => {
   console.log("Message received:", data);
 
-  // If user joined a private room
+  // Private Chat
   if (data.room && data.room.trim() !== "") {
     io.to(data.room).emit(
       "receive_message",
@@ -67,9 +67,9 @@ socket.on("send_message", (data) => {
     );
   }
 
-  // If user didn't join any room (Public Chat)
+  // Public Chat
   else {
-    io.emit(
+    socket.broadcast.emit(
       "receive_message",
       data.message
     );

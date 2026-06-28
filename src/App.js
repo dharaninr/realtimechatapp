@@ -81,12 +81,18 @@ const [selectedAvatar, setSelectedAvatar] = useState("🐱");
   if (message.trim() === "") return;
 
   const msgData =
-`${selectedAvatar} ${username}: ${message}`;
+    `${selectedAvatar} ${username}: ${message}`;
 
   socket.emit("send_message", {
     room: room,
     message: msgData,
   });
+
+  // Show immediately only in Public Chat
+  if (room === "") {
+    setMessages((prev) => [...prev, msgData]);
+  }
+
   setMessage("");
 };
 const onEmojiClick = (emojiData) => {
