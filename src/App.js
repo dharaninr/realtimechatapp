@@ -198,6 +198,7 @@ const stopRecording = () => {
 
   if (!loggedIn) {
     return (
+
       <div
         style={{
           minHeight: "100vh",
@@ -213,8 +214,9 @@ const stopRecording = () => {
             background: "white",
             padding: "40px",
             borderRadius: "20px",
-            width: "350px",
+            width: "420px",
             textAlign: "center",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
           }}
         >
           <img
@@ -299,12 +301,41 @@ const stopRecording = () => {
           color: darkMode ? "white" : "black",
         }}
       >
-        <div style={{ textAlign: "center" }}>
-  <div style={{ fontSize: "60px" }}>
+        <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "15px",
+    marginBottom: "20px",
+    borderBottom: "1px solid #ddd",
+    paddingBottom: "15px"
+  }}
+>
+  <div
+    style={{
+      fontSize: "60px",
+      background: "#f3e8ff",
+      borderRadius: "50%",
+      padding: "10px"
+    }}
+  >
     {selectedAvatar}
   </div>
 
-  <h2>💬 Welcome {username}</h2>
+  <div>
+    <h2 style={{ margin: 0 }}>
+      Welcome {username}
+    </h2>
+
+    <p
+      style={{
+        color: "green",
+        margin: "5px 0"
+      }}
+    >
+      ● Online
+    </p>
+  </div>
 </div>
         <input
   type="text"
@@ -314,59 +345,85 @@ const stopRecording = () => {
   style={styles.input}
 />
 
-<button onClick={joinRoom} style={styles.button}>
-  Join Private Room
-</button>
-<button
-  onClick={() => {
-    socket.emit("leave_room", {
-      room: room,
-      username: username,
-    });
-
-    setRoom("");
-    setJoinedRoom(false);
-    setMessages([]);
+<div
+  style={{
+    display: "flex",
+    gap: "10px",
+    flexWrap: "wrap",
+    marginTop: "20px",
+    marginBottom: "20px"
   }}
-  style={styles.button}
 >
-  Leave Private Chat
-</button>
+  <button onClick={joinRoom} style={styles.button}>
+    Join Room
+  </button>
+
+  <button
+    onClick={() => {
+      socket.emit("leave_room", {
+        room: room,
+        username: username,
+      });
+
+      setRoom("");
+      setJoinedRoom(false);
+      setMessages([]);
+    }}
+    style={styles.button}
+  >
+    Leave Room
+  </button>
+
+  <button
+    onClick={() => setDarkMode(!darkMode)}
+    style={styles.button}
+  >
+    {darkMode ? "☀️ Light" : "🌙 Dark"}
+  </button>
+
+  <button
+    onClick={() => {
+      setLoggedIn(false);
+      setMessages([]);
+      setUploadedFiles([]);
+      setUsername("");
+      setPassword("");
+      setMessage("");
+    }}
+    style={styles.logout}
+  >
+    Logout
+  </button>
+
+  <button
+    onClick={clearChat}
+    style={styles.clearButton}
+  >
+    🗑 Clear Chat
+  </button>
+</div>
 
 {joinedRoom && (
   <p>🔒 Joined Room: {room}</p>
 )}
 
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          style={styles.button}
-        >
-          {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
-        </button>
-
-        <button
-          onClick={() => {
-            setLoggedIn(false);
-            setMessages([]);
-            setUploadedFiles([]);
-            setUsername("");
-            setPassword("");
-            setMessage("");
-          }}
-          style={styles.logout}
-        >
-          Logout
-        </button>
-
-        <button
-          onClick={clearChat}
-          style={styles.clearButton}
-        >
-          🗑️ Clear Chat
-        </button>
-
-        <div
+<div
   style={{
+    display: "grid",
+    gridTemplateColumns: "2fr 1fr",
+    gap: "20px",
+    marginTop: "20px"
+  }}
+>
+
+  <div
+    style={{
+      flex: 2
+    }}
+  >
+    <div
+  style={{
+    flex: 1,
     ...styles.messages,
     background: darkMode ? "#444" : "#f3e8ff",
     color: darkMode ? "white" : "black",
@@ -377,89 +434,146 @@ const stopRecording = () => {
     key={index}
     style={{
       ...styles.message,
-      color: darkMode ? "white" : "black",
       background: darkMode ? "#666" : "#e9d8fd",
+      color: darkMode ? "white" : "black",
+
+      marginLeft:
+        typeof msg === "string" &&
+        msg.includes(username)
+          ? "auto"
+          : "0",
+
+      backgroundColor:
+        typeof msg === "string" &&
+        msg.includes(username)
+          ? "#d8b4fe"
+          : "#f3f4f6",
     }}
   >
-    {typeof msg === "object" ? (
-  msg.type === "audio" ? (
-    <audio controls src={msg.url}></audio>
-  ) : (
-    msg.message
-  )
-) : (
-  msg
-)}
-  </div>
-))}
+      {typeof msg === "object"
+        ? msg.type === "audio"
+          ? <audio controls src={msg.url}></audio>
+          : msg.message
+        : msg}
+    </div>
+  ))}
+</div>
 </div>
 
-        <input
-          type="text"
-          placeholder="Type message..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          style={styles.input}
-        />
-        <button
-  onClick={() => setShowEmoji(!showEmoji)}
-  style={styles.button}
+  <div
+  style={{
+    flex: 1,
+    background: darkMode ? "#444" : "#faf5ff",
+    padding: "20px",
+    borderRadius: "20px",
+    border: "1px solid #ddd",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
+  }}
 >
-  😊
+    <h3
+  style={{
+    textAlign: "center",
+    marginBottom: "20px"
+  }}
+>
+  📄 PDF Sharing
+</h3>
+
+    <input
+      type="file"
+      accept=".pdf"
+      style={{
+        marginBottom: "15px"
+      }}
+      onChange={(e) =>
+        setSelectedFile(e.target.files[0])
+      }
+    />
+
+    <button
+      onClick={uploadFile}
+      style={styles.button}
+    >
+      Upload PDF
+    </button>
+
+    <br /><br />
+
+    {uploadedFiles.map((file, index) => (
+      <div key={index}>
+        <a
+          href={file}
+          target="_blank"
+          rel="noreferrer"
+        >
+          📄 Open PDF {index + 1}
+        </a>
+      </div>
+    ))}
+  </div>
+
+</div>
+       <div
+  style={{
+    display: "flex",
+    gap: "10px",
+    marginTop: "20px",
+    alignItems: "center"
+  }}
+>
+
+  <input
+    type="text"
+    placeholder="Type a message..."
+    value={message}
+    onChange={(e) => setMessage(e.target.value)}
+    style={{
+      flex: 1,
+      padding: "15px",
+      borderRadius: "12px",
+      border: "1px solid #ccc"
+    }}
+  />
+
+    <button
+      onClick={() => setShowEmoji(!showEmoji)}
+      style={styles.button}
+    >
+      😊
+    </button>
+
+    <button
+  onClick={sendMessage}
+  style={{
+    ...styles.button,
+    padding: "15px 25px"
+  }}
+>
+  Send ✈️
 </button>
-{showEmoji && (
-  <EmojiPicker onEmojiClick={onEmojiClick} />
-)}
 
-        <button onClick={sendMessage} style={styles.button}>
-          Send
-        </button>
-        {!isRecording ? (
-  <button
-    onClick={startRecording}
-    style={styles.button}
-  >
-    🎤 Start Recording
-  </button>
-) : (
-  <button
-    onClick={stopRecording}
-    style={styles.button}
-  >
-    ⏹ Stop Recording
-  </button>
-)}
+    {!isRecording ? (
+      <button
+        onClick={startRecording}
+        style={styles.button}
+      >
+        🎤 Start Recording
+      </button>
+    ) : (
+      <button
+        onClick={stopRecording}
+        style={styles.button}
+      >
+        ⏹ Stop Recording
+      </button>
+    )}
 
-        <hr />
+  {showEmoji && (
+    <EmojiPicker onEmojiClick={onEmojiClick} />
+  )}
 
-        <h3>📄 Upload PDF</h3>
+</div>
 
-        <input
-          type="file"
-          accept=".pdf"
-          onChange={(e) =>
-            setSelectedFile(e.target.files[0])
-          }
-        />
-
-        <button onClick={uploadFile} style={styles.button}>
-          Upload PDF
-        </button>
-
-        <br />
-        <br />
-
-        {uploadedFiles.map((file, index) => (
-          <div key={index}>
-            <a
-              href={file}
-              target="_blank"
-              rel="noreferrer"
-            >
-              📄 Open PDF {index + 1}
-            </a>
-          </div>
-        ))}
       </div>
     </div>
   );
@@ -471,18 +585,21 @@ const styles = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  background: "#111b21",
+  padding: "20px",
+  fontFamily: "Arial, sans-serif",
+  background: "linear-gradient(135deg,#c8b6ff,#e0c3fc)",
 },
 
   chatBox: {
-  height: "95vh",
-  width: "100%",
-  maxWidth: "500px",
-  background: "#efeae2",
-  borderRadius: "15px",
+  width: "90%",
+  maxWidth: "1200px",
+  minHeight: "90vh",
+  background: "white",
+  borderRadius: "25px",
+  padding: "30px",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
   display: "flex",
   flexDirection: "column",
-  padding: "15px",
 },
 
   input: {
@@ -495,15 +612,16 @@ const styles = {
   },
 
   button: {
-    marginTop: "10px",
-    marginRight: "10px",
-    padding: "10px 20px",
-    background: "#9d4edd",
-    color: "white",
-    border: "none",
-    borderRadius: "10px",
-    cursor: "pointer",
-  },
+  marginTop: "10px",
+  marginRight: "10px",
+  padding: "12px 20px",
+  background: "#9d4edd",
+  color: "white",
+  border: "none",
+  borderRadius: "10px",
+  cursor: "pointer",
+  fontWeight: "bold",
+},
 
   logout: {
     background: "red",
@@ -523,22 +641,24 @@ const styles = {
     marginLeft: "10px",
   },
 
- messages: {
-  flex: 1,
+  messages: {
+  height: "450px",
   overflowY: "auto",
-  padding: "10px",
-  background: "#ece5dd",
-  borderRadius: "10px",
+  padding: "20px",
+  background: "#f8f8f8",
+  borderRadius: "15px",
+  marginTop: "20px",
+  border: "1px solid #ddd",
 },
 
   message: {
-  background: "#dcf8c6",
-  color: "black",
-  margin: "8px 0",
-  padding: "10px",
-  borderRadius: "10px",
-  maxWidth: "75%",
-  alignSelf: "flex-end",
+  background: "#efe7ff",
+  padding: "15px",
+  borderRadius: "18px",
+  marginBottom: "15px",
+  maxWidth: "70%",
+  width: "fit-content",
+  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
   wordWrap: "break-word",
 },
 };
