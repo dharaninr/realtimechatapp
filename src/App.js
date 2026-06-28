@@ -39,9 +39,18 @@ const [selectedAvatar, setSelectedAvatar] = useState("🐱");
 
   socket.off("receive_file");
 
-  socket.on("receive_file", (file) => {
-    setUploadedFiles((prev) => [...prev, file]);
-  });
+  socket.on("receive_file", (data) => {
+
+  if (data.room === room || data.room === "") {
+
+    setUploadedFiles((prev) => [
+      ...prev,
+      data.file,
+    ]);
+
+  }
+
+});
 
   return () => {
     socket.off("receive_message");

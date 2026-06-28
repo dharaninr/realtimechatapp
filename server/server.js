@@ -78,20 +78,26 @@ socket.on("send_message", (data) => {
   socket.on("send_file", (data) => {
   console.log("File shared:", data);
 
-  // Private room
   if (data.room && data.room.trim() !== "") {
+
     io.to(data.room).emit(
       "receive_file",
-      data.file
+      {
+        file: data.file,
+        room: data.room,
+      }
     );
-  }
 
-  // Public chat
-  else {
+  } else {
+
     io.emit(
       "receive_file",
-      data.file
+      {
+        file: data.file,
+        room: "",
+      }
     );
+
   }
 });
 socket.on("leave_room", (data) => {
