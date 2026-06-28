@@ -50,6 +50,10 @@ io.on("connection", (socket) => {
   // Join Room
   socket.on("join_room", (data) => {
     socket.join(data.room);
+    console.log(
+      `{data.username} joined rooom ${data.room}`
+    );
+    console.log(socket.rooms);
 
     io.to(data.room).emit("receive_message", {
       message: `${data.username} joined the room`,

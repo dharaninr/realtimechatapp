@@ -30,37 +30,46 @@ function App() {
 
 const [selectedAvatar, setSelectedAvatar] = useState("🐱");
 
-  useEffect(() => {
+useEffect(() => {
+
   socket.off("receive_message");
-
- 
-
   socket.off("receive_file");
+
+ socket.on("receive_message", (data) => {
+
+
+  const messageText =
+    typeof data === "string"
+      ? data
+      : data.message || JSON.stringify(data);
+
+  setMessages((prev) => {
+
+    if (
+      !messageText.includes("joined the room") &&
+      !messageText.includes("left the room") &&
+      prev.includes(messageText)
+    ) {
+      return prev;
+    }
+
+    return [...prev, messageText];
+  });
+});
 
   socket.on("receive_file", (data) => {
 
-  if (data.room === room || data.room === "") {
+  console.log("Received file:", data);
+
+  if (data.room === room) {
 
     setUploadedFiles((prev) => [
       ...prev,
       data.file,
     ]);
-socket.on("receive_message", (data) => {
-  setMessages((prev) => {
 
-    // Don't block join/leave messages
-    if (
-      !data.includes("joined the room") &&
-      !data.includes("left the room") &&
-      prev.includes(data)
-    ) {
-      return prev;
-    }
-
-    return [...prev, data];
-  });
-});
   }
+
 
 });
 
@@ -68,7 +77,8 @@ socket.on("receive_message", (data) => {
     socket.off("receive_message");
     socket.off("receive_file");
   };
-}, []);
+
+}, [room]);
 
   const login = () => {
     const now = new Date();
@@ -90,6 +100,7 @@ socket.on("receive_message", (data) => {
   };
   const joinRoom = () => {
   if (room !== "") {
+    console.log("Joining room:",room);
     socket.emit("join_room", {
       room: room,
       username: username,
@@ -109,9 +120,6 @@ socket.on("receive_message", (data) => {
     message: msgData,
   });
 
-  if(room == "") {
-    setMessages((prev) => [...prev,msgData]);
-  }
   setMessage("");
 };
 const onEmojiClick = (emojiData) => {
