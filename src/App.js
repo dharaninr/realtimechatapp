@@ -18,6 +18,8 @@ function App() {
 
   const [darkMode, setDarkMode] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
+  const [room, setRoom] = useState("");
+  const [joinedRoom, setJoinedRoom] = useState(false);
 
   useEffect(() => {
   socket.on("receive_message", (data) => {
@@ -52,13 +54,25 @@ function App() {
       alert("Wrong Password");
     }
   };
+  const joinRoom = () => {
+  if (room !== "") {
+    socket.emit("join_room", {
+      room: room,
+      username: username,
+    });
+    setJoinedRoom(true);
+  }
+};
 
   const sendMessage = () => {
   if (message.trim() === "") return;
 
   const msgData = `${username}: ${message}`;
 
-  socket.emit("send_message", msgData);
+  socket.emit("send_message", {
+    room: room,
+    message: msgData,
+  });
 
   setMessage("");
 };
@@ -168,6 +182,36 @@ const onEmojiClick = (emojiData) => {
         }}
       >
         <h2>💬 Welcome {username}</h2>
+        <input
+  type="text"
+  placeholder="Enter Room ID"
+  value={room}
+  onChange={(e) => setRoom(e.target.value)}
+  style={styles.input}
+/>
+
+<button onClick={joinRoom} style={styles.button}>
+  Join Private Room
+</button>
+<button
+  onClick={() => {
+    socket.emit("leave_room", {
+      room: room,
+      username: username,
+    });
+
+    setRoom("");
+    setJoinedRoom(false);
+    setMessages([]);
+  }}
+  style={styles.button}
+>
+  Leave Private Chat
+</button>
+
+{joinedRoom && (
+  <p>🔒 Joined Room: {room}</p>
+)}
 
         <button
           onClick={() => setDarkMode(!darkMode)}
@@ -198,12 +242,12 @@ const onEmojiClick = (emojiData) => {
         </button>
 
         <div style={styles.messages}>
-          {messages.map((msg, index) => (
-            <div key={index} style={styles.message}>
-              {msg}
-            </div>
-          ))}
-        </div>
+  {messages.map((msg, index) => (
+    <div key={index} style={styles.message}>
+      {typeof msg === "object" ? msg.message : msg}
+    </div>
+  ))}
+</div>
 
         <input
           type="text"

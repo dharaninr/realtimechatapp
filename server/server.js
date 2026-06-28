@@ -46,14 +46,37 @@ app.post("/upload", upload.single("file"), (req, res) => {
 // Socket.IO
 io.on("connection", (socket) => {
   console.log("User Connected");
+socket.on("join_room", (data) => {
+  socket.join(data.room);
 
-  socket.on("send_message", (data) => {
-    console.log("Message received:", data);
-    io.emit("receive_message", data);
-  });
+  io.to(data.room).emit(
+    "receive_message",
+    `${data.username} joined the room`
+  );
+
+  console.log(`${data.username} joined ${data.room}`);
+});
+socket.on("send_message", (data) => {
+  console.log("Message received:", data);
+
+  io.to(data.room).emit(
+    "receive_message",
+    data.message
+  );
+});
   socket.on("send_file", (file) => {
   console.log("File shared:", file);
   io.emit("receive_file", file);
+});
+socket.on("leave_room", (data) => {
+  socket.leave(data.room);
+
+  io.to(data.room).emit(
+    "receive_message",
+    `${data.username} left the room`
+  );
+
+  console.log(`${data.username} left ${data.room}`);
 });
   socket.on("disconnect", () => {
     console.log("User Disconnected");
