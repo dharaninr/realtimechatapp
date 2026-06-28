@@ -15,10 +15,10 @@ const io = new Server(server, {
 
 app.use(cors());
 
-// Make uploaded files accessible
+// Serve uploaded files
 app.use("/uploads", express.static("uploads"));
 
-// Storage settings
+// Multer storage settings
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");
@@ -46,71 +46,73 @@ app.post("/upload", upload.single("file"), (req, res) => {
 // Socket.IO
 io.on("connection", (socket) => {
   console.log("User Connected");
-socket.on("join_room", (data) => {
-  socket.join(data.room);
 
-  io.to(data.room).emit(
-    "receive_message",
-    `${data.username} joined the room`
-  );
+  // Join Room
+  socket.on("join_room", (data) => {
+    socket.join(data.room);
 
-  console.log(`${data.username} joined ${data.room}`);
-});
-socket.on("send_message", (data) => {
-  console.log("Message received:", data);
+    io.to(data.room).emit("receive_message", {
+      message: `${data.username} joined the room`,
+      room: data.room,
+    });
 
-  // If user joined a room → send only to that room
-  if (data.room && data.room !== "") {
-    io.to(data.room).emit(
-      "receive_message",
-      data.message
-    );
-  }
+    console.log(`${data.username} joined ${data.room}`);
+  });
 
-  // If no room joined → send to everyone
-  else {
-    io.emit(
-      "receive_message",
-      data.message
-    );
-  }
-});
+  // Send Message
+  socket.on("send_message", (data) => {
+    console.log("Message received:", data);
+
+    // Private room
+    if (data.room && data.room.trim() !== "") {
+      io.to(data.room).emit("receive_message", {
+        message: data.message,
+        room: data.room,
+      });
+    }
+
+    // Public chat
+    else {
+      io.emit("receive_message", {
+        message: data.message,
+        room: "",
+      });
+    }
+  });
+
+  // Send File
   socket.on("send_file", (data) => {
-  console.log("File shared:", data);
+    console.log("File shared:", data);
 
-  if (data.room && data.room.trim() !== "") {
-
-    io.to(data.room).emit(
-      "receive_file",
-      {
+    // Private room
+    if (data.room && data.room.trim() !== "") {
+      io.to(data.room).emit("receive_file", {
         file: data.file,
         room: data.room,
-      }
-    );
+      });
+    }
 
-  } else {
-
-    io.emit(
-      "receive_file",
-      {
+    // Public chat
+    else {
+      io.emit("receive_file", {
         file: data.file,
         room: "",
-      }
-    );
+      });
+    }
+  });
 
-  }
-});
-socket.on("leave_room", (data) => {
+  // Leave Room
+  socket.on("leave_room", (data) => {
+    io.to(data.room).emit("receive_message", {
+      message: `${data.username} left the room`,
+      room: data.room,
+    });
 
-  io.to(data.room).emit(
-    "receive_message",
-    `${data.username} left the room`
-  );
+    socket.leave(data.room);
 
-  socket.leave(data.room);
+    console.log(`${data.username} left ${data.room}`);
+  });
 
-  console.log(`${data.username} left ${data.room}`);
-});
   socket.on("disconnect", () => {
     console.log("User Disconnected");
   });
@@ -121,7 +123,7 @@ app.get("/", (req, res) => {
   res.send("Backend is running");
 });
 
-// Render uses this port
+// Start server
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {

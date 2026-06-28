@@ -33,9 +33,7 @@ const [selectedAvatar, setSelectedAvatar] = useState("🐱");
   useEffect(() => {
   socket.off("receive_message");
 
-  socket.on("receive_message", (data) => {
-    setMessages((prev) => [...prev, data]);
-  });
+ 
 
   socket.off("receive_file");
 
@@ -47,7 +45,21 @@ const [selectedAvatar, setSelectedAvatar] = useState("🐱");
       ...prev,
       data.file,
     ]);
+socket.on("receive_message", (data) => {
+  setMessages((prev) => {
 
+    // Don't block join/leave messages
+    if (
+      !data.includes("joined the room") &&
+      !data.includes("left the room") &&
+      prev.includes(data)
+    ) {
+      return prev;
+    }
+
+    return [...prev, data];
+  });
+});
   }
 
 });
@@ -97,11 +109,9 @@ const [selectedAvatar, setSelectedAvatar] = useState("🐱");
     message: msgData,
   });
 
-  // Show immediately only in Public Chat
-  if (room === "") {
-    setMessages((prev) => [...prev, msgData]);
+  if(room == "") {
+    setMessages((prev) => [...prev,msgData]);
   }
-
   setMessage("");
 };
 const onEmojiClick = (emojiData) => {
