@@ -73,6 +73,7 @@ function App() {
     room: room,
     message: msgData,
   });
+  setMessages((prev) => [...prev, msgData]);
 
   setMessage("");
 };
@@ -241,12 +242,25 @@ const onEmojiClick = (emojiData) => {
           🗑️ Clear Chat
         </button>
 
-        <div style={styles.messages}>
+        <div
+  style={{
+    ...styles.messages,
+    background: darkMode ? "#444" : "#f3e8ff",
+    color: darkMode ? "white" : "black",
+  }}
+>
   {messages.map((msg, index) => (
-    <div key={index} style={styles.message}>
-      {typeof msg === "object" ? msg.message : msg}
-    </div>
-  ))}
+  <div
+    key={index}
+    style={{
+      ...styles.message,
+      color: darkMode ? "white" : "black",
+      background: darkMode ? "#666" : "#e9d8fd",
+    }}
+  >
+    {typeof msg === "object" ? msg.message : msg}
+  </div>
+))}
 </div>
 
         <input
@@ -311,12 +325,15 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    padding: "20px",
   },
 
   chatBox: {
     padding: "30px",
     borderRadius: "20px",
     width: "700px",
+    maxWidth: "90vw",
+    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.2)",
   },
 
   input: {
@@ -360,7 +377,6 @@ const styles = {
   messages: {
     height: "250px",
     overflowY: "auto",
-    background: "#f3e8ff",
     padding: "10px",
     margin: "20px 0",
     borderRadius: "10px",
@@ -368,6 +384,7 @@ const styles = {
 
   message: {
     background: "#e9d8fd",
+    color:  "black",
     margin: "10px 0",
     padding: "10px",
     borderRadius: "10px",
