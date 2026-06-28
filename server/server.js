@@ -51,7 +51,10 @@ io.on("connection", (socket) => {
     console.log("Message received:", data);
     io.emit("receive_message", data);
   });
-
+  socket.on("send_file", (file) => {
+  console.log("File shared:", file);
+  io.emit("receive_file", file);
+});
   socket.on("disconnect", () => {
     console.log("User Disconnected");
   });

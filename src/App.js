@@ -18,14 +18,19 @@ function App() {
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    socket.on("receive_message", (data) => {
-      setMessages((prev) => [...prev, data]);
-    });
+  socket.on("receive_message", (data) => {
+    setMessages((prev) => [...prev, data]);
+  });
 
-    return () => {
-      socket.off("receive_message");
-    };
-  }, []);
+  socket.on("receive_file", (file) => {
+    setUploadedFiles((prev) => [...prev, file]);
+  });
+
+  return () => {
+    socket.off("receive_message");
+    socket.off("receive_file");
+  };
+}, []);
 
   const login = () => {
     const now = new Date();
@@ -75,10 +80,7 @@ function App() {
         formData
       );
 
-      setUploadedFiles((prev) => [
-        ...prev,
-        res.data.filePath,
-      ]);
+      socket.emit("send_file", res.data.filePath);
 
       alert("PDF Uploaded Successfully");
     } catch (error) {
