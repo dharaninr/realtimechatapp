@@ -59,10 +59,21 @@ socket.on("join_room", (data) => {
 socket.on("send_message", (data) => {
   console.log("Message received:", data);
 
-  io.to(data.room).emit(
-    "receive_message",
-    data.message
-  );
+  // If user joined a private room
+  if (data.room && data.room.trim() !== "") {
+    io.to(data.room).emit(
+      "receive_message",
+      data.message
+    );
+  }
+
+  // If user didn't join any room (Public Chat)
+  else {
+    io.emit(
+      "receive_message",
+      data.message
+    );
+  }
 });
   socket.on("send_file", (file) => {
   console.log("File shared:", file);

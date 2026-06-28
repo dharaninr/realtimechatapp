@@ -31,9 +31,13 @@ function App() {
 const [selectedAvatar, setSelectedAvatar] = useState("🐱");
 
   useEffect(() => {
+  socket.off("receive_message");
+
   socket.on("receive_message", (data) => {
     setMessages((prev) => [...prev, data]);
   });
+
+  socket.off("receive_file");
 
   socket.on("receive_file", (file) => {
     setUploadedFiles((prev) => [...prev, file]);
@@ -83,8 +87,6 @@ const [selectedAvatar, setSelectedAvatar] = useState("🐱");
     room: room,
     message: msgData,
   });
-  setMessages((prev) => [...prev, msgData]);
-
   setMessage("");
 };
 const onEmojiClick = (emojiData) => {
