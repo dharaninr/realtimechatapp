@@ -87,6 +87,7 @@ io.on("connection", (socket) => {
   // Send File
   socket.on("send_file", (data) => {
     console.log("File shared:", data);
+    console.log("Sending file to room", data.room);
 
     // Private room
     if (data.room && data.room.trim() !== "") {

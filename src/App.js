@@ -182,6 +182,7 @@ const stopRecording = () => {
         formData
       );
       console.log("Sending file to room:", room);
+      alert("Sending file to room: " + room);
 
       socket.emit("send_file", {
         room: room,
@@ -466,20 +467,23 @@ const stopRecording = () => {
 
 const styles = {
   container: {
-    minHeight: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "20px",
-  },
+  minHeight: "100vh",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  background: "#111b21",
+},
 
   chatBox: {
-    padding: "30px",
-    borderRadius: "20px",
-    width: "700px",
-    maxWidth: "90vw",
-    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.2)",
-  },
+  height: "95vh",
+  width: "100%",
+  maxWidth: "500px",
+  background: "#efeae2",
+  borderRadius: "15px",
+  display: "flex",
+  flexDirection: "column",
+  padding: "15px",
+},
 
   input: {
     width: "100%",
@@ -519,21 +523,24 @@ const styles = {
     marginLeft: "10px",
   },
 
-  messages: {
-    height: "250px",
-    overflowY: "auto",
-    padding: "10px",
-    margin: "20px 0",
-    borderRadius: "10px",
-  },
+ messages: {
+  flex: 1,
+  overflowY: "auto",
+  padding: "10px",
+  background: "#ece5dd",
+  borderRadius: "10px",
+},
 
   message: {
-    background: "#e9d8fd",
-    color:  "black",
-    margin: "10px 0",
-    padding: "10px",
-    borderRadius: "10px",
-  },
+  background: "#dcf8c6",
+  color: "black",
+  margin: "8px 0",
+  padding: "10px",
+  borderRadius: "10px",
+  maxWidth: "75%",
+  alignSelf: "flex-end",
+  wordWrap: "break-word",
+},
 };
 
 export default App;
