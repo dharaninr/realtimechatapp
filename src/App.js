@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import io from "socket.io-client";
+import EmojiPicker from "emoji-picker-react";
 
 const socket = io("https://realtimechatapp-3-752i.onrender.com");
 
@@ -16,6 +17,7 @@ function App() {
   const [uploadedFiles, setUploadedFiles] = useState([]);
 
   const [darkMode, setDarkMode] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
 
   useEffect(() => {
   socket.on("receive_message", (data) => {
@@ -59,6 +61,9 @@ function App() {
   socket.emit("send_message", msgData);
 
   setMessage("");
+};
+const onEmojiClick = (emojiData) => {
+  setMessage((prev) => prev + emojiData.emoji);
 };
 
   const clearChat = () => {
@@ -207,6 +212,15 @@ function App() {
           onChange={(e) => setMessage(e.target.value)}
           style={styles.input}
         />
+        <button
+  onClick={() => setShowEmoji(!showEmoji)}
+  style={styles.button}
+>
+  😊
+</button>
+{showEmoji && (
+  <EmojiPicker onEmojiClick={onEmojiClick} />
+)}
 
         <button onClick={sendMessage} style={styles.button}>
           Send
